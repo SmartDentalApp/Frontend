@@ -15,8 +15,16 @@ const config: Config = {
         text: '#333',
         accent: '#ff9900',
       },
+      fontFamily: {
+        sans: ['DMSans', 'sans-serif'],
+
+        body: ['DMSans'],
+      },
     },
   },
   plugins: [],
+  corePlugins: {
+    preflight: false,
+  }
 }
 export default config
