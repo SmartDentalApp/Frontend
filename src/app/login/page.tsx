@@ -6,6 +6,10 @@ import Copyright from "@/components/Copyright";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { emailRegex, passwordRegex } from "@/utils/regex";
 import { delayedValidation } from "@/utils/validation";
+import { login } from "@/api/services/auth/authService";
+import { useRouter } from 'next/navigation'
+
+
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -13,6 +17,7 @@ export default function Login() {
   const [remember, setRemember] = useState(false);
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [isPasswordValid, setIsPasswordValid] = useState(true);
+  const router = useRouter()
 
   const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
     const newEmail = event.target.value
@@ -33,10 +38,26 @@ export default function Login() {
     setRemember(newRemember);
   };
 
-  const loginSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    console.log(remember)
+  const setAuthToken = () => {
+
   }
+
+  const loginSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    try {
+      event.preventDefault();
+      const credentials = { username: email, password: password };
+      const result = await login(credentials);
+
+      setAuthToken()
+      router.push("/")
+    } catch (error) {
+      
+    }
+  }
+
+  const hasFormData = () => Boolean(email && password)
+
+  const hasFormError = () => Boolean(!isEmailValid || !isPasswordValid)
 
   return (
     <ThemeProvider theme={theme}>
@@ -84,6 +105,7 @@ export default function Login() {
               fullWidth
               variant="contained"
               sx={{ mt: 3 }}
+              disabled={!hasFormData() || hasFormError()}
             >
               Login
             </Button>
