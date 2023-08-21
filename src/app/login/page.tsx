@@ -3,11 +3,12 @@ import { Box, Button, Checkbox, Container, FormControlLabel, TextField, ThemePro
 import LogoIcon from "@/components/icons/Logo";
 import theme from '@/theme'
 import Copyright from "@/components/Copyright";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { emailRegex, passwordRegex } from "@/utils/regex";
 import { delayedValidation } from "@/utils/validation";
 import { login } from "@/api/services/auth/authService";
 import { useRouter } from 'next/navigation'
+import { getAuthToken, setAuthToken } from "@/composables/auth";
 
 
 
@@ -18,6 +19,11 @@ export default function Login() {
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [isPasswordValid, setIsPasswordValid] = useState(true);
   const router = useRouter()
+
+  useEffect(() => {
+      const authToken = getAuthToken()
+      if (authToken) router.push('/')
+  }, [])
 
   const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
     const newEmail = event.target.value
@@ -38,17 +44,13 @@ export default function Login() {
     setRemember(newRemember);
   };
 
-  const setAuthToken = () => {
-
-  }
-
   const loginSubmit = async (event: FormEvent<HTMLFormElement>) => {
     try {
       event.preventDefault();
       const credentials = { username: email, password: password };
       const result = await login(credentials);
 
-      setAuthToken()
+      setAuthToken(result.token, remember)
       router.push("/")
     } catch (error) {
       

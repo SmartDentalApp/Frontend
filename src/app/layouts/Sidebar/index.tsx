@@ -2,11 +2,11 @@
 import React, { ReactNode } from 'react';
 import Sidebar from '@/components/Sidebar';
 
-interface SidebarLayoutProps {
+interface ISidebarLayoutProps {
     children: ReactNode
 }
 
-export default function SidebarLayout ({ children }: SidebarLayoutProps) {
+export default function SidebarLayout ({ children }: ISidebarLayoutProps) {
   return (
     <div className="flex">
       <Sidebar />

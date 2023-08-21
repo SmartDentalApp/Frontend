@@ -1,13 +1,27 @@
 import { Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import Logo from "../icons/Logo";
-import { Person } from "@mui/icons-material";
+import { Person, ExitToApp } from "@mui/icons-material";
 import { useState } from "react";
+import { removeAuthToken } from "@/composables/auth";
+import { useRouter } from "next/navigation";
 
 export default function Sidebar() {
+    const router = useRouter()
+
+    const logOut = () => {
+        removeAuthToken()
+        router.push("/login")
+    }
+
     const menuItems = [
         {
             name: "Clientes",
             icon: Person
+        },
+        {
+            name: "Sair",
+            icon: ExitToApp,
+            action: logOut
         }
     ]
 
@@ -30,7 +44,7 @@ export default function Sidebar() {
                 <List>
                     {menuItems.map((item, index) => (
                         <ListItem key={item.name} disablePadding>
-                            <ListItemButton>
+                            <ListItemButton onClick={item.action}>
                                 <ListItemIcon>
                                     <item.icon color="primary" />
                                 </ListItemIcon>
