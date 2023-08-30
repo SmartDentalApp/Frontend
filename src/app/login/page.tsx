@@ -9,6 +9,7 @@ import { delayedValidation } from "@/utils/validation";
 import { login } from "@/api/services/auth/authService";
 import { useRouter } from 'next/navigation'
 import { getAuthToken, setAuthToken } from "@/composables/auth";
+import { hasRequiredFormData, hasFormDataError } from "@/utils/form";
 
 
 
@@ -57,10 +58,6 @@ export default function Login() {
     }
   }
 
-  const hasFormData = () => Boolean(email && password)
-
-  const hasFormError = () => Boolean(!isEmailValid || !isPasswordValid)
-
   return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
@@ -107,7 +104,7 @@ export default function Login() {
               fullWidth
               variant="contained"
               sx={{ mt: 3 }}
-              disabled={!hasFormData() || hasFormError()}
+              disabled={!hasRequiredFormData([email, password]) || hasFormDataError([isEmailValid, isPasswordValid])}
             >
               Login
             </Button>
