@@ -20,6 +20,7 @@ import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { useState, ChangeEvent, FormEvent } from "react";
 import { Dayjs } from "dayjs";
 import 'dayjs/locale/pt-br';
+import { createCustomer } from "@/api/services/customer/customerService";
 
 export default function Customer() {
   const [email, setEmail] = useState("");
@@ -79,7 +80,17 @@ export default function Customer() {
     setDateTreatmentStart(dayJsEvent);
   };
 
-  const saveCustomer = (event: FormEvent<HTMLFormElement>) => {
+  const clearFormData = () => {
+    setEmail("")
+    setFullName("")
+    setCPF("")
+    setBirthDate(null)
+    setRG("")
+    setAddress("")
+    setDateTreatmentStart(null)
+  }
+
+  const saveCustomer = async (event: FormEvent<HTMLFormElement>) => {
     try {
       event.preventDefault();
       
@@ -87,13 +98,14 @@ export default function Customer() {
         email,
         fullName,
         CPF,
-        birthDate,
+        birthDate: birthDate!.format(),
         RG,
         address,
-        dateTreatmentStart
+        dateTreatmentStart: dateTreatmentStart!.format()
       }
 
-      console.log(customerData)
+      await createCustomer(customerData);
+      clearFormData()
     } catch (error) {
       
     }
