@@ -1,9 +1,9 @@
 export interface ICustomer {
-  email: string
-  fullName: string
+  Email: string
+  Name: string
   CPF: string
-  birthDate: string
+  BirthDate: string
   RG: string
-  address: string
-  dateTreatmentStart: string
+  Address: string
+  DateTreatmentStart: string
 }
