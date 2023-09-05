@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 import { SyntheticEvent, useState } from 'react';
 import { IBasicTabsProps } from './types';
 
-export default function BasicTabs({ tabItems }: IBasicTabsProps) {
+export default function TabPanel({ tabItems }: IBasicTabsProps) {
   const [value, setValue] = useState(0);
 
   const handleChange = (event: SyntheticEvent, newValue: number) => {
@@ -14,7 +14,7 @@ export default function BasicTabs({ tabItems }: IBasicTabsProps) {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+      <Box className="mb-5" sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={value} onChange={handleChange} aria-label="dynamic tabs">
           {tabItems.map((item, index) => (
             <Tab key={index} label={item.label} />

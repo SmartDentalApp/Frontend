@@ -5,13 +5,13 @@ import SidebarLayout from "@/layouts/Sidebar";
 import theme from "@/theme";
 import { ThemeProvider } from "@emotion/react";
 import "dayjs/locale/pt-br";
-import BasicTabs from "../components/TabPanel";
+import TabPanel from "../components/TabPanel";
 import CustomerRegister from "./CustomerRegister";
-import CustomerEdit from "./CustomerEdit";
+import CustomerList from "./CustomerList";
 
 export default function Customer() {
   const tabs = [
-    { label: "Listagem", content: CustomerEdit() },
+    { label: "Listagem", content: CustomerList() },
     { label: "Cadastro", content: CustomerRegister() },
   ];
 
@@ -19,7 +19,7 @@ export default function Customer() {
     <RouteGuard>
       <ThemeProvider theme={theme}>
         <SidebarLayout>
-          <BasicTabs tabItems={tabs} />
+          <TabPanel tabItems={tabs} />
         </SidebarLayout>
       </ThemeProvider>
     </RouteGuard>

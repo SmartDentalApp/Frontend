@@ -11,7 +11,7 @@ export default function RouteGuard({children}: IRouteGuardProps) {
 
     useEffect(() => {
         const authToken = getAuthToken()
-        if (!authToken) router.push('/login')
+        //if (!authToken) router.push('/login')
     }, [])
 
     return (<>{children}</>)

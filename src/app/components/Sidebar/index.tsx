@@ -22,7 +22,6 @@ export default function Sidebar() {
   };
 
   const RedirectToCustomer = () => {
-    removeAuthToken();
     router.push("/customer");
   };
 
