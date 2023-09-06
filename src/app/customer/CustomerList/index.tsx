@@ -1,4 +1,3 @@
-import * as React from "react";
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -14,93 +13,28 @@ import EnhancedTableHead from "./components/EnhancedTableHead";
 import { Data } from "./types";
 import EnhancedTableToolbar from "./components/EnhancedTableToolbar";
 import useSortTable, { Order } from "./composables/useSortTable";
+import { MouseEvent, ChangeEvent, useEffect, useMemo, useState, useContext } from "react";
+import { getCustomers } from "@/api/services/customer/customerService";
+import { ICustomersGetResponseModel } from "@/api/services/customer/types";
+import { CircularProgress } from "@mui/material";
 
-function createData(
-  id: number,
-  email: string,
-  name: string,
-  cpf: string,
-  birthDate: string,
-  rg: string,
-  address: string,
-  treatmentStartDate: string
-): Data {
-  return {
-    id,
-    email,
-    name,
-    cpf,
-    birthDate,
-    rg,
-    address,
-    treatmentStartDate,
-  };
-}
+export default function CustomerList() {
+  const { stableSort, getComparator } = useSortTable();
+  const [order, setOrder] = useState<Order>("asc");
+  const [orderBy, setOrderBy] = useState<keyof Data>("name");
+  const [selected, setSelected] = useState<readonly string[]>([]);
+  const [page, setPage] = useState(0);
+  const [dense, setDense] = useState(false);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rows, setRows] = useState<ICustomersGetResponseModel[]>([]);
+  const [isLoadingTable, setIsLoadingTable] = useState(true);
 
-const rows = [
-  createData(
-    1,
-    "eexample@email.com",
-    "dCupcake",
-    "07389896655",
-    "2023-09-03T18:26:52.911",
-    "19260639",
-    "123 Main Street",
-    "2023-09-03T18:26:52.911"
-  ),
-  createData(
-    2,
-    "bexample@email.com",
-    "aCupcake",
-    "07389896655",
-    "2023-09-03T18:26:52.911",
-    "19260639",
-    "123 Main Street",
-    "2023-09-03T18:26:52.911"
-  ),
-  createData(
-    3,
-    "dexample@email.com",
-    "cCupcake",
-    "07389896655",
-    "2023-09-03T18:26:52.911",
-    "19260639",
-    "123 Main Street",
-    "2023-09-03T18:26:52.911"
-  ),
-  createData(
-    4,
-    "aexample@email.com",
-    "eCupcake",
-    "07389896655",
-    "2023-09-03T18:26:52.911",
-    "19260639",
-    "123 Main Street",
-    "2023-09-03T18:26:52.911"
-  ),
-  createData(
-    5,
-    "cexample@email.com",
-    "fCupcake",
-    "07389896655",
-    "2023-09-03T18:26:52.911",
-    "19260639",
-    "123 Main Street",
-    "2023-09-03T18:26:52.911"
-  ),
-];
-
-export default function EnhancedTable() {
-  const { stableSort, getComparator } = useSortTable()
-  const [order, setOrder] = React.useState<Order>("asc");
-  const [orderBy, setOrderBy] = React.useState<keyof Data>("name");
-  const [selected, setSelected] = React.useState<readonly string[]>([]);
-  const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  useEffect(() => {
+    getCustomersData();
+  }, []);
 
   const handleRequestSort = (
-    event: React.MouseEvent<unknown>,
+    event: MouseEvent<unknown>,
     property: keyof Data
   ) => {
     const isAsc = orderBy === property && order === "asc";
@@ -108,16 +42,16 @@ export default function EnhancedTable() {
     setOrderBy(property);
   };
 
-  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSelectAllClick = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelected = rows.map((n) => n.name);
+      const newSelected = rows?.map((n) => n.name);
       setSelected(newSelected);
       return;
     }
     setSelected([]);
   };
 
-  const handleClick = (event: React.MouseEvent<unknown>, name: string) => {
+  const handleClick = (event: MouseEvent<unknown>, name: string) => {
     const selectedIndex = selected.indexOf(name);
     let newSelected: readonly string[] = [];
 
@@ -141,14 +75,12 @@ export default function EnhancedTable() {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
-  const handleChangeDense = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeDense = (event: ChangeEvent<HTMLInputElement>) => {
     setDense(event.target.checked);
   };
 
@@ -158,97 +90,114 @@ export default function EnhancedTable() {
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
-  const visibleRows = React.useMemo(
+  const visibleRows = useMemo(
     () =>
       stableSort(rows, getComparator(order, orderBy)).slice(
         page * rowsPerPage,
         page * rowsPerPage + rowsPerPage
       ),
-    [order, orderBy, page, rowsPerPage]
+    [rows, order, orderBy, page, rowsPerPage]
   );
+
+  const getCustomersData = async () => {
+    try {
+      setIsLoadingTable(true);
+      const response = await getCustomers();
+      console.log(response);
+      setRows(response.data);
+    } finally {
+      setIsLoadingTable(false);
+    }
+  };
 
   return (
     <Box sx={{ width: "100%" }}>
-      <Paper sx={{ width: "100%", mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} />
-        <TableContainer>
-          <Table
-            sx={{ minWidth: 750 }}
-            aria-labelledby="tableTitle"
-            size={dense ? "small" : "medium"}
-          >
-            <EnhancedTableHead
-              numSelected={selected.length}
-              order={order}
-              orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
-              onRequestSort={handleRequestSort}
-              rowCount={rows.length}
-            />
-            <TableBody>
-              {visibleRows.map((row, index) => {
-                const isItemSelected = isSelected(row.name);
-                const labelId = `enhanced-table-checkbox-${index}`;
+      {isLoadingTable ? (
+        <CircularProgress size={50} />
+      ) : (
+        <>
+          <Paper sx={{ width: "100%", mb: 2 }}>
+            <EnhancedTableToolbar numSelected={selected.length} />
+            <TableContainer>
+              <Table
+                sx={{ minWidth: 750 }}
+                aria-labelledby="tableTitle"
+                size={dense ? "small" : "medium"}
+              >
+                <EnhancedTableHead
+                  numSelected={selected.length}
+                  order={order}
+                  orderBy={orderBy}
+                  onSelectAllClick={handleSelectAllClick}
+                  onRequestSort={handleRequestSort}
+                  rowCount={rows.length}
+                />
+                <TableBody>
+                  {visibleRows.map((row, index) => {
+                    const isItemSelected = isSelected(row.name);
+                    const labelId = `enhanced-table-checkbox-${index}`;
 
-                return (
-                  <TableRow
-                    hover
-                    onClick={(event) => handleClick(event, row.name)}
-                    role="checkbox"
-                    aria-checked={isItemSelected}
-                    tabIndex={-1}
-                    key={row.name}
-                    selected={isItemSelected}
-                    sx={{ cursor: "pointer" }}
-                  >
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        color="primary"
-                        checked={isItemSelected}
-                        inputProps={{
-                          "aria-labelledby": labelId,
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell align="right">{row.email}</TableCell>
-                    <TableCell align="right">{row.name}</TableCell>
-                    <TableCell align="right">{row.cpf}</TableCell>
-                    <TableCell align="right">{row.birthDate}</TableCell>
-                    <TableCell align="right">{row.rg}</TableCell>
-                    <TableCell align="right">{row.address}</TableCell>
-                    <TableCell align="right">
-                      {row.treatmentStartDate}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-              {emptyRows > 0 && (
-                <TableRow
-                  style={{
-                    height: (dense ? 33 : 53) * emptyRows,
-                  }}
-                >
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          labelRowsPerPage="Registros por página"
-          component="div"
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </Paper>
-      <FormControlLabel
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label="Encurtar linhas"
-      />
+                    return (
+                      <TableRow
+                        hover
+                        onClick={(event) => handleClick(event, row.name)}
+                        role="checkbox"
+                        aria-checked={isItemSelected}
+                        tabIndex={-1}
+                        key={row.email}
+                        selected={isItemSelected}
+                        sx={{ cursor: "pointer" }}
+                      >
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            color="primary"
+                            checked={isItemSelected}
+                            inputProps={{
+                              "aria-labelledby": labelId,
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell align="left">{row.email}</TableCell>
+                        <TableCell align="left">{row.name}</TableCell>
+                        <TableCell align="left">{row.cpf}</TableCell>
+                        <TableCell align="left">{row.birthDate}</TableCell>
+                        <TableCell align="left">{row.rg}</TableCell>
+                        <TableCell align="left">{row.address}</TableCell>
+                        <TableCell align="left">
+                          {row.treatmentStartDate}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                  {emptyRows > 0 && (
+                    <TableRow
+                      style={{
+                        height: (dense ? 33 : 53) * emptyRows,
+                      }}
+                    >
+                      <TableCell colSpan={6} />
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              labelRowsPerPage="Registros por página"
+              component="div"
+              count={rows.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          </Paper>
+          <FormControlLabel
+            control={<Switch checked={dense} onChange={handleChangeDense} />}
+            label="Encurtar linhas"
+          />
+        </>
+      )}
     </Box>
   );
 }

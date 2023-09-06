@@ -1,5 +1,4 @@
 export const hasRequiredFormData = (data: any[]) => {
-  console.log(data)
   return data.every((value) => {
     return Boolean(value) === true
   });
